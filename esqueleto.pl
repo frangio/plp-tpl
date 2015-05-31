@@ -5,7 +5,20 @@
 %% Ejercicio 1
 %% tablero(+Filas,+Columnas,-Tablero) instancia una estructura de tablero en blanco
 %% de Filas x Columnas, con todas las celdas libres.
-tablero(_,_,_).
+
+%% No se me ocurrio como hacer esto de otra manera,
+%% pero despues se puede cambiar, y por ahora genera 
+%% lo que se necesita para los otros ejercicios
+tablero(NumeroF,NumeroC,Tablero) :-
+	length(Tablero, NumeroF),
+	lengthOfEachRow(Tablero,NumeroC).
+	
+lengthOfEachRow([Head|Tail], N) :- 
+%%	var(Head),						 
+	length(Head, N),
+	lengthOfEachRow(Tail, N).
+lengthOfEachRow([], _).
+	
 
 
 %% Ejercicio 2

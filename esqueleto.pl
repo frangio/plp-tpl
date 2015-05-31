@@ -23,9 +23,35 @@ lengthOfEachRow([], _).
 
 %% Ejercicio 2
 %% ocupar(+Pos,?Tablero) será verdadero cuando la posición indicada esté ocupada.
-ocupar(_,_).
+ocupar(pos(F,C),Tablero) :-
+	nth0(F, Tablero, Fila),
+	nth0(C, Fila, Elemento),
+	Elemento = ocupada.
 
+%% Tableros de ejemplo
+tablero(ej5x5, T) :-
+	tablero(5, 5, T),
+	ocupar(pos(1, 1), T),
+	ocupar(pos(1, 2), T).
 
+tablero(libre20, T) :-
+	tablero(20, 20, T).
+
+tablero(ej3x3diagonal, T) :-
+	tablero(3, 3, T),
+	ocupar(pos(0, 0), T),
+	ocupar(pos(1, 1), T),
+	ocupar(pos(2, 2), T).
+
+tablero(ocupado2x3, T) :-
+	tablero(2, 3, T),
+	ocupar(pos(0, 0), T),
+	ocupar(pos(0, 1), T),
+	ocupar(pos(0, 2), T),
+	ocupar(pos(1, 0), T),
+	ocupar(pos(1, 1), T),
+	ocupar(pos(1, 2), T).
+	
 %% Ejercicio 3
 %% vecino(+Pos, +Tablero, -PosVecino) será verdadero cuando PosVecino sea
 %% un átomo de la forma pos(F', C') y pos(F',C') sea una celda contigua a

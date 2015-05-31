@@ -133,19 +133,19 @@ camino(Inicio,Fin,Tablero,Camino) :-
 	
 caminoValido(Pos,Pos,Tablero,[Pos], _) :- libre(Pos, Tablero).
 caminoValido(Inicio,Fin,Tablero,[Inicio|RestoCamino], Visitadas) :-
+	not( Inicio = Fin ),
 	posicionValida(Inicio, Tablero), posicionValida(Fin, Tablero),
 	vecinoLibre(Inicio, Tablero, PosLibre),
 	not(member(PosLibre, Visitadas)),
 	caminoValido(PosLibre, Fin, Tablero, RestoCamino, [PosLibre|Visitadas]).
 	
-		
-
-	
 
 %% Ejercicio 6
 %% cantidadDeCaminos(+Inicio, +Fin, +Tablero, ?N) que indique la cantidad de caminos
 %% posibles sin ciclos entre Inicio y Fin.
-cantidadDeCaminos(_,_,_,_).
+cantidadDeCaminos(Inicio,Fin,Tablero,N) :- 
+	bagof(Camino, camino(Inicio, Fin, Tablero, Camino), Bag),
+	length(Bag, N).
 
 %% Ejercicio 7
 %% camino2(+Inicio, +Fin, +Tablero, -Camino) ídem camino/4 pero se espera una heurística

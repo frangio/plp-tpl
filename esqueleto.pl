@@ -55,6 +55,19 @@ tablero(ocupado2x3, T) :-
 	ocupar(pos(1, 0), T),
 	ocupar(pos(1, 1), T),
 	ocupar(pos(1, 2), T).
+
+%% _ X _ _ _ 
+%% _ X _ X _ 
+%% _ _ _ X _ 
+%% _ _ _ X _ 
+tablero(ej4x5conObstaculos, T) :-
+	tablero(4, 5, T),
+	ocupar(pos(0, 1), T),
+	ocupar(pos(1, 1), T),
+	ocupar(pos(1, 3), T),
+	ocupar(pos(2, 3), T),
+	ocupar(pos(3, 3), T).
+	
 	
 %% Ejercicio 3
 %% vecino(+Pos, +Tablero, -PosVecino) será verdadero cuando PosVecino sea
@@ -95,7 +108,11 @@ tamanio(Tablero, F, C) :-
 %% debe ser una celda transitable (no ocupada) en el Tablero
 vecinoLibre(Pos,Tablero,PosVecino) :-
 	vecino(Pos, Tablero, PosVecino),
-	posicion(PosVecino, Tablero, Celda),
+	libre(PosVecino, Tablero).
+	
+%% libre(+Pos, +Tablero) 
+libre(Pos, Tablero) :-
+	posicion(Pos, Tablero, Celda),
 	var(Celda).
 
 
@@ -111,7 +128,19 @@ vecinoLibre(Pos,Tablero,PosVecino) :-
 %% Notar que la cantidad de caminos es finita y por ende se tiene que poder recorrer
 %% todas las alternativas eventualmente.
 %% Consejo: Utilizar una lista auxiliar con las posiciones visitadas
-camino(_,_,_,_).
+camino(Inicio,Fin,Tablero,Camino) :-
+	caminoValido(Inicio,Fin,Tablero,Camino, []).
+	
+caminoValido(Pos,Pos,Tablero,[Pos], _) :- libre(Pos, Tablero).
+caminoValido(Inicio,Fin,Tablero,[Inicio|RestoCamino], Visitadas) :-
+	posicionValida(Inicio, Tablero), posicionValida(Fin, Tablero),
+	vecinoLibre(Inicio, Tablero, PosLibre),
+	not(member(PosLibre, Visitadas)),
+	caminoValido(PosLibre, Fin, Tablero, RestoCamino, [PosLibre|Visitadas]).
+	
+		
+
+	
 
 %% Ejercicio 6
 %% cantidadDeCaminos(+Inicio, +Fin, +Tablero, ?N) que indique la cantidad de caminos

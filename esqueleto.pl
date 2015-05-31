@@ -24,10 +24,11 @@ lengthOfEachRow([], _).
 %% Ejercicio 2
 %% ocupar(+Pos,?Tablero) será verdadero cuando la posición indicada esté ocupada.
 ocupar(pos(F,C),Tablero) :-
-	nth0(F, Tablero, Fila),
-	nth0(C, Fila, Elemento),
-	Elemento = ocupada.
 
+posicion(pos(F,C), Tablero, Contenido) :-
+	nth0(F, Tablero, Fila),
+	nth0(C, Fila, Contenido).
+	
 %% Tableros de ejemplo
 tablero(ej5x5, T) :-
 	tablero(5, 5, T),
@@ -79,14 +80,21 @@ posicionValida(pos(F,C), Tablero) :-
 	C < NumeroC.
 
 %% tamanio(+Tablero, -F, -C)
+%% A pesar de que podriamos usar tablero(F,C,T) para obtener
+%% F y C (se puede dado a cómo esta implementada),
+%% su nomenclatura de instanciacion permite que se cambie
+%% ese comportamiento y ya no nos sirva.
 tamanio(Tablero, F, C) :-
 	length(Tablero, F),
 	nth0(0, Tablero, Fila),
 	length(Fila, C).
+	
 %% Ejercicio 4
 %% vecinoLibre(+Pos, +Tablero, -PosVecino) idem vecino/3 pero además PosVecino
 %% debe ser una celda transitable (no ocupada) en el Tablero
-vecinoLibre(_,_,_).
+vecinoLibre(Pos,Tablero,PosVecino) :-
+	vecino(Pos, Tablero, PosVecino),
+	var(Celda).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%

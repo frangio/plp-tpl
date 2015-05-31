@@ -57,8 +57,32 @@ tablero(ocupado2x3, T) :-
 %% un átomo de la forma pos(F', C') y pos(F',C') sea una celda contigua a
 %% pos(F,C), donde Pos=pos(F,C). Las celdas contiguas puede ser a lo sumo cuatro
 %% dado que el robot se moverá en forma ortogonal.
-vecino(_,_,_).
+%% Usamos generate&test
+vecino(pos(F,C),Tablero,pos(FV, CV)) :-
+	posibleVecino(pos(F,C),pos(FV, CV)),
+	posicionValida(pos(FV, CV), Tablero).
+	
+%% posibleVecino(+Pos,-Pos')
+%% Devuelve en Pos' uno de los cuatro posibles vecinos de Pos,
+%% moviendose ortogonalmente.
+posibleVecino(pos(F,C),pos(FV, CV)) :- FV is F - 1, CV is C.
+posibleVecino(pos(F,C),pos(FV, CV)) :- FV is F + 1, CV is C.
+posibleVecino(pos(F,C),pos(FV, CV)) :- FV is F, CV is C - 1.
+posibleVecino(pos(F,C),pos(FV, CV)) :- FV is F, CV is C + 1.
+		
+%% posicionValida(+Pos, +Tablero)
+posicionValida(pos(F,C), Tablero) :-
+	tamanio(Tablero, NumeroF, NumeroC),
+	F >= 0,
+	F < NumeroF,
+	C >= 0,
+	C < NumeroC.
 
+%% tamanio(+Tablero, -F, -C)
+tamanio(Tablero, F, C) :-
+	length(Tablero, F),
+	nth0(0, Tablero, Fila),
+	length(Fila, C).
 %% Ejercicio 4
 %% vecinoLibre(+Pos, +Tablero, -PosVecino) idem vecino/3 pero además PosVecino
 %% debe ser una celda transitable (no ocupada) en el Tablero

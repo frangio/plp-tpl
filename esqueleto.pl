@@ -13,6 +13,7 @@ tablero(NumeroF,NumeroC,Tablero) :-
 	length(Tablero, NumeroF),
 	lengthOfEachRow(Tablero,NumeroC).
 	
+%% lengthOfEachRow(?LL, +N) :- 
 lengthOfEachRow([Head|Tail], N) :- 
 %%	var(Head),						 
 	length(Head, N),
@@ -24,7 +25,9 @@ lengthOfEachRow([], _).
 %% Ejercicio 2
 %% ocupar(+Pos,?Tablero) será verdadero cuando la posición indicada esté ocupada.
 ocupar(pos(F,C),Tablero) :-
+	posicion(pos(F,C), Tablero, ocupada).
 
+%% posicion(+Pos, +Tablero, ?Contenido)
 posicion(pos(F,C), Tablero, Contenido) :-
 	nth0(F, Tablero, Fila),
 	nth0(C, Fila, Contenido).
@@ -74,10 +77,8 @@ posibleVecino(pos(F,C),pos(FV, CV)) :- FV is F, CV is C + 1.
 %% posicionValida(+Pos, +Tablero)
 posicionValida(pos(F,C), Tablero) :-
 	tamanio(Tablero, NumeroF, NumeroC),
-	F >= 0,
-	F < NumeroF,
-	C >= 0,
-	C < NumeroC.
+	F >= 0, F < NumeroF,
+	C >= 0, C < NumeroC.
 
 %% tamanio(+Tablero, -F, -C)
 %% A pesar de que podriamos usar tablero(F,C,T) para obtener
@@ -94,6 +95,7 @@ tamanio(Tablero, F, C) :-
 %% debe ser una celda transitable (no ocupada) en el Tablero
 vecinoLibre(Pos,Tablero,PosVecino) :-
 	vecino(Pos, Tablero, PosVecino),
+	posicion(PosVecino, Tablero, Celda),
 	var(Celda).
 
 

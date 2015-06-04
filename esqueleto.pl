@@ -6,21 +6,13 @@
 %% tablero(+Filas,+Columnas,-Tablero) instancia una estructura de tablero en blanco
 %% de Filas x Columnas, con todas las celdas libres.
 
-%% No se me ocurrio como hacer esto de otra manera,
-%% pero despues se puede cambiar, y por ahora genera 
-%% lo que se necesita para los otros ejercicios
-tablero(NumeroF,NumeroC,Tablero) :-
-	length(Tablero, NumeroF),
-	lengthOfEachRow(Tablero,NumeroC).
-	
-%% lengthOfEachRow(?LL, +N) :- 
-lengthOfEachRow([Head|Tail], N) :- 
-%%	var(Head),						 
-	length(Head, N),
-	lengthOfEachRow(Tail, N).
-lengthOfEachRow([], _).
-	
+% tablero(+Filas, +Columnas, -Tablero)
+tablero(Filas, Columnas, Tablero) :-
+	length(Tablero, Filas),
+        maplist(flip(length, Columnas), Tablero).
 
+% flip(+R, ?X, ?Y)
+flip(R, X, Y) :- call(R, Y, X).
 
 %% Ejercicio 2
 %% ocupar(+Pos,?Tablero) será verdadero cuando la posición indicada esté ocupada.

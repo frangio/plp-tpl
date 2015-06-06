@@ -3,10 +3,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%
 
 %% Ejercicio 1
-%% tablero(+Filas,+Columnas,-Tablero) instancia una estructura de tablero en blanco
+%% tablero(+Filas, +Columnas, -Tablero) instancia una estructura de tablero en blanco
 %% de Filas x Columnas, con todas las celdas libres.
 
-% tablero(+Filas, +Columnas, -Tablero)
 tablero(Filas, Columnas, Tablero) :-
 	length(Tablero, Filas),
         maplist(flip(length, Columnas), Tablero).

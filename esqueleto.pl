@@ -125,9 +125,9 @@ caminoValido(Pos, Pos, Tablero,[Pos], _) :- libre(Pos, Tablero).
 caminoValido(Inicio, Fin, Tablero,[Inicio|RestoCamino], Visitadas) :-
 	not( Inicio = Fin ),
 	posicionValida(Inicio, Tablero), posicionValida(Fin, Tablero),
-	vecinoLibre(Inicio, Tablero, PosLibre),
-	not(member(PosLibre, Visitadas)),
-	caminoValido(PosLibre, Fin, Tablero, RestoCamino, [PosLibre|Visitadas]).
+	vecinoLibre(Inicio, Tablero, SiguientePaso),
+	not(member(SiguientePaso, Visitadas)),
+	caminoValido(SiguientePaso, Fin, Tablero, RestoCamino, [PosLibre|Visitadas]).
 
 
 %% Ejercicio 6
@@ -145,6 +145,9 @@ cantidadDeCaminos(Inicio, Fin, Tablero, N) :-
 %% destino (distancia Manhattan). Por lo tanto, el predicado deberá devolver de a uno,
 %% todos los caminos pero en orden creciente de longitud.
 camino2(_, _, _, _).
+
+caminoDeLongitud(+Inicio, +Fin, +Tablero, +Longitud, -Camino) :-
+	
 
 %% Ejercicio 8
 %% camino3(+Inicio, +Fin, +Tablero, -Camino) ídem camino2/4 pero se espera que

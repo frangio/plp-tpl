@@ -126,13 +126,18 @@ caminoSinVisitadas2(Inicio, Fin, Tablero,[Inicio|RestoCamino], Visitadas) :-
 	not(member(SiguientePaso, Visitadas)),
 	caminoSinVisitadas2(SiguientePaso, Fin, Tablero, RestoCamino, [SiguientePaso|Visitadas]).
 
-segunDistancia(Fin, Pos, List) :- predsort(predDistancia(Fin), List, Sorted), member(Pos, Sorted).
+segunDistancia(Fin, Pos, List) :- predsort(predDistancia(Fin), List, Sorted),!, member(Pos, Sorted).
 
 predDistancia(Fin, Delta, Pos1, Pos2) :-
 	distancia(Fin, Pos1, D1), distancia(Fin, Pos2, D2),
 	(compare(Delta, D1, D2), Delta \= '='); Delta = '<'.
 
 distancia(pos(X1, Y1), pos(X2, Y2), D) :- D is abs(X1 - X2) + abs(Y1 - Y2).
+
+
+cantidadDeCaminos2(Inicio, Fin, Tablero, N) :- 
+	bagof(Camino, camino2(Inicio, Fin, Tablero, Camino), Bag),
+	length(Bag, N).
 
 %% Ejercicio 8
 %% camino3(+Inicio, +Fin, +Tablero, -Camino) ídem camino2/4 pero se espera que

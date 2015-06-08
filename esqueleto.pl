@@ -144,7 +144,11 @@ cantidadDeCaminos(Inicio, Fin, Tablero, N) :-
 %% Una solución es mejor mientras menos pasos se deba dar para llegar a
 %% destino (distancia Manhattan). Por lo tanto, el predicado deberá devolver de a uno,
 %% todos los caminos pero en orden creciente de longitud.
-camino2(_, _, _, _).
+camino2(Inicio, Fin, Tablero, Camino)  :-
+	tamanio(Tablero, NumF, NumC),
+	Cota is NumF + NumC,
+	between(0, Cota, N),
+	caminoDeLongitud(Inicio, Fin, Tablero, N, Camino).
 
 %% caminoDeLongitud(+Inicio, +Fin, +Tablero, +Longitud, -Camino) :-
 caminoDeLongitud(Inicio, Fin, Tablero, Longitud, Camino) :-

@@ -8,7 +8,7 @@
 
 tablero(Filas, Columnas, Tablero) :-
 	length(Tablero, Filas),
-        maplist(flip(length, Columnas), Tablero).
+	maplist(flip(length, Columnas), Tablero).
 
 % flip(+R, ?X, ?Y)
 flip(R, X, Y) :- call(R, Y, X).
@@ -129,8 +129,8 @@ caminoSinVisitadas2(Inicio, Fin, Tablero,[Inicio|RestoCamino], Visitadas) :-
 segunDistancia(Fin, Pos, List) :- predsort(predDistancia(Fin), List, Sorted), member(Pos, Sorted).
 
 predDistancia(Fin, Delta, Pos1, Pos2) :-
-  distancia(Fin, Pos1, D1), distancia(Fin, Pos2, D2),
-  (compare(Delta, D1, D2), Delta \= '='); Delta = '<'.
+	distancia(Fin, Pos1, D1), distancia(Fin, Pos2, D2),
+	(compare(Delta, D1, D2), Delta \= '='); Delta = '<'.
 
 distancia(pos(X1, Y1), pos(X2, Y2), D) :- D is abs(X1 - X2) + abs(Y1 - Y2).
 
@@ -147,29 +147,29 @@ distancia(pos(X1, Y1), pos(X2, Y2), D) :- D is abs(X1 - X2) + abs(Y1 - Y2).
 :- dynamic camino3lookup/4.
 
 camino3(Inicio, Fin, Tablero, Camino) :-
-  camino3lookup(Inicio, Fin, Tablero, Caminos),
-  !,
-  member(Camino, Caminos).
+	camino3lookup(Inicio, Fin, Tablero, Caminos),
+	!,
+	member(Camino, Caminos).
 
 camino3(Inicio, Inicio, Tablero, [Inicio]) :- !, libre(Inicio, Tablero).
 
 camino3(Inicio, Fin, Tablero, Camino) :-
-  bagof(Cam, Sig^(
-    vecinoLibre(Inicio, Tablero, Sig),
-    camino3(Sig, Fin, Tablero, RestoCam),
-    Cam = [Inicio | RestoCam]
-  ), Caminos),
-  minimos(Caminos, CaminosMinimos),
-  assert(camino3lookup(Inicio, Fin, Tablero, CaminosMinimos)),
-  member(Camino, CaminosMinimos).
+	bagof(Cam, Sig^(
+	  vecinoLibre(Inicio, Tablero, Sig),
+	  camino3(Sig, Fin, Tablero, RestoCam),
+	  Cam = [Inicio | RestoCam]
+	), Caminos),
+	minimos(Caminos, CaminosMinimos),
+	assert(camino3lookup(Inicio, Fin, Tablero, CaminosMinimos)),
+	member(Camino, CaminosMinimos).
 
 % minimos(+ListaDeListas, -ListasMasCortas)
 minimos(ListaDeListas, ListasMasCortas) :-
-  bagof(L, (
-    member(L, ListaDeListas),
-    length(L, N),
-    forall(member(Other, ListaDeListas), (length(Other, M), N =< M))
-  ), ListasMasCortas).
+	bagof(L, (
+	  member(L, ListaDeListas),
+	  length(L, N),
+	  forall(member(Other, ListaDeListas), (length(Other, M), N =< M))
+	), ListasMasCortas).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%

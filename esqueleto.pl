@@ -127,7 +127,7 @@ caminoValido(Inicio, Fin, Tablero,[Inicio|RestoCamino], Visitadas) :-
 	posicionValida(Inicio, Tablero), posicionValida(Fin, Tablero),
 	vecinoLibre(Inicio, Tablero, SiguientePaso),
 	not(member(SiguientePaso, Visitadas)),
-	caminoValido(SiguientePaso, Fin, Tablero, RestoCamino, [PosLibre|Visitadas]).
+	caminoValido(SiguientePaso, Fin, Tablero, RestoCamino, [SiguientePaso|Visitadas]).
 
 
 %% Ejercicio 6
@@ -136,7 +136,7 @@ caminoValido(Inicio, Fin, Tablero,[Inicio|RestoCamino], Visitadas) :-
 cantidadDeCaminos(Inicio, Fin, Tablero, N) :- 
 	bagof(Camino, camino(Inicio, Fin, Tablero, Camino), Bag),
 	length(Bag, N).
-
+ 
 %% Ejercicio 7
 %% camino2(+Inicio, +Fin, +Tablero, -Camino) ídem camino/4 pero se espera una heurística
 %% que mejore las soluciones iniciales.
@@ -147,7 +147,8 @@ cantidadDeCaminos(Inicio, Fin, Tablero, N) :-
 camino2(_, _, _, _).
 
 caminoDeLongitud(+Inicio, +Fin, +Tablero, +Longitud, -Camino) :-
-	
+	camino(Inicio, Fin, Tablero, Camino),
+	length(Camino, Longitud).
 
 %% Ejercicio 8
 %% camino3(+Inicio, +Fin, +Tablero, -Camino) ídem camino2/4 pero se espera que

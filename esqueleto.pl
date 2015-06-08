@@ -22,43 +22,6 @@ posicion(pos(F, C), Tablero, Contenido) :-
 	nth0(F, Tablero, Fila),
 	nth0(C, Fila, Contenido).
 
-%% Tableros de ejemplo
-tablero(ej5x5, T) :-
-	tablero(5, 5, T),
-	ocupar(pos(1, 1), T),
-	ocupar(pos(1, 2), T).
-
-tablero(libre20, T) :-
-	tablero(20, 20, T).
-
-tablero(ej3x3diagonal, T) :-
-	tablero(3, 3, T),
-	ocupar(pos(0, 0), T),
-	ocupar(pos(1, 1), T),
-	ocupar(pos(2, 2), T).
-
-tablero(ocupado2x3, T) :-
-	tablero(2, 3, T),
-	ocupar(pos(0, 0), T),
-	ocupar(pos(0, 1), T),
-	ocupar(pos(0, 2), T),
-	ocupar(pos(1, 0), T),
-	ocupar(pos(1, 1), T),
-	ocupar(pos(1, 2), T).
-
-%% _ X _ _ _ 
-%% _ X _ X _ 
-%% _ _ _ X _ 
-%% _ _ _ X _ 
-tablero(ej4x5conObstaculos, T) :-
-	tablero(4, 5, T),
-	ocupar(pos(0, 1), T),
-	ocupar(pos(1, 1), T),
-	ocupar(pos(1, 3), T),
-	ocupar(pos(2, 3), T),
-	ocupar(pos(3, 3), T).
-
-
 %% Ejercicio 3
 %% vecino(+Pos, +Tablero, -PosVecino) será verdadero cuando PosVecino sea
 %% un átomo de la forma pos(F', C') y pos(F', C') sea una celda contigua a
@@ -119,15 +82,18 @@ libre(Pos, Tablero) :-
 %% todas las alternativas eventualmente.
 %% Consejo: Utilizar una lista auxiliar con las posiciones visitadas
 camino(Inicio, Fin, Tablero, Camino) :-
-	caminoValido(Inicio, Fin, Tablero, Camino, []).
+        libre(Inicio, Tablero),
+	caminoSinVisitadas(Inicio, Fin, Tablero, Camino, [Inicio]).
 
-caminoValido(Pos, Pos, Tablero,[Pos], _) :- libre(Pos, Tablero).
-caminoValido(Inicio, Fin, Tablero,[Inicio|RestoCamino], Visitadas) :-
-	not( Inicio = Fin ),
-	posicionValida(Inicio, Tablero), posicionValida(Fin, Tablero),
+% caminoSinVisitadas(+Inicio, +Fin, +Tablero, -Camino, +Visitadas)
+caminoSinVisitadas(Pos, Pos, Tablero, [Pos], _) :- !, libre(Pos, Tablero).
+caminoSinVisitadas(Inicio, Fin, Tablero,[Inicio|RestoCamino], Visitadas) :-
+	Inicio \= Fin,
+	posicionValida(Inicio, Tablero),
+        posicionValida(Fin, Tablero),
 	vecinoLibre(Inicio, Tablero, SiguientePaso),
 	not(member(SiguientePaso, Visitadas)),
-	caminoValido(SiguientePaso, Fin, Tablero, RestoCamino, [SiguientePaso|Visitadas]).
+	caminoSinVisitadas(SiguientePaso, Fin, Tablero, RestoCamino, [SiguientePaso|Visitadas]).
 
 
 %% Ejercicio 6
@@ -136,7 +102,7 @@ caminoValido(Inicio, Fin, Tablero,[Inicio|RestoCamino], Visitadas) :-
 cantidadDeCaminos(Inicio, Fin, Tablero, N) :- 
 	bagof(Camino, camino(Inicio, Fin, Tablero, Camino), Bag),
 	length(Bag, N).
- 
+
 %% Ejercicio 7
 %% camino2(+Inicio, +Fin, +Tablero, -Camino) ídem camino/4 pero se espera una heurística
 %% que mejore las soluciones iniciales.
@@ -144,17 +110,29 @@ cantidadDeCaminos(Inicio, Fin, Tablero, N) :-
 %% Una solución es mejor mientras menos pasos se deba dar para llegar a
 %% destino (distancia Manhattan). Por lo tanto, el predicado deberá devolver de a uno,
 %% todos los caminos pero en orden creciente de longitud.
-camino2(Inicio, Fin, Tablero, Camino)  :-
-	tamanio(Tablero, NumF, NumC),
-	Cota is NumF + NumC,
-	between(0, Cota, N),
-	caminoDeLongitud(Inicio, Fin, Tablero, N, Camino).
 
-%% caminoDeLongitud(+Inicio, +Fin, +Tablero, +Longitud, -Camino) :-
-caminoDeLongitud(Inicio, Fin, Tablero, Longitud, Camino) :-
-	camino(Inicio, Fin, Tablero, Camino),
-	ground(Camino),
-	length(Camino, Longitud).
+camino2(Inicio, Fin, Tablero, Camino) :-
+        libre(Inicio, Tablero),
+	caminoSinVisitadas2(Inicio, Fin, Tablero, Camino, [Inicio]).
+
+% caminoSinVisitadas2(+Inicio, +Fin, +Tablero, -Camino, +Visitadas)
+caminoSinVisitadas2(Pos, Pos, Tablero, [Pos], _) :- !, libre(Pos, Tablero).
+caminoSinVisitadas2(Inicio, Fin, Tablero,[Inicio|RestoCamino], Visitadas) :-
+	Inicio \= Fin,
+	posicionValida(Inicio, Tablero),
+        posicionValida(Fin, Tablero),
+	bagof(Sig, vecinoLibre(Inicio, Tablero, Sig), Siguientes),
+	segunDistancia(Fin, SiguientePaso, Siguientes),
+	not(member(SiguientePaso, Visitadas)),
+	caminoSinVisitadas2(SiguientePaso, Fin, Tablero, RestoCamino, [SiguientePaso|Visitadas]).
+
+segunDistancia(Fin, Pos, List) :- predsort(predDistancia(Fin), List, Sorted), member(Pos, Sorted).
+
+predDistancia(Fin, Delta, Pos1, Pos2) :-
+  distancia(Fin, Pos1, D1), distancia(Fin, Pos2, D2),
+  (compare(Delta, D1, D2), Delta \= '='); Delta = '<'.
+
+distancia(pos(X1, Y1), pos(X2, Y2), D) :- D is abs(X1 - X2) + abs(Y1 - Y2).
 
 %% Ejercicio 8
 %% camino3(+Inicio, +Fin, +Tablero, -Camino) ídem camino2/4 pero se espera que
@@ -165,7 +143,34 @@ caminoDeLongitud(Inicio, Fin, Tablero, Longitud, Camino) :-
 %% desde Inicio en más de 6 pasos.
 %% Notar que dos ejecuciones de camino3/4 con los mismos argumentos deben dar los mismos resultados.
 %% En este ejercicio se permiten el uso de predicados: dynamic/1, asserta/1, assertz/1 y retractall/1.
-camino3(_, _, _, _).
+
+:- dynamic camino3lookup/4.
+
+camino3(Inicio, Fin, Tablero, Camino) :-
+  camino3lookup(Inicio, Fin, Tablero, Caminos),
+  !,
+  member(Camino, Caminos).
+
+camino3(Inicio, Inicio, Tablero, [Inicio]) :- !, libre(Inicio, Tablero).
+
+camino3(Inicio, Fin, Tablero, Camino) :-
+  bagof(Cam, Sig^(
+    vecinoLibre(Inicio, Tablero, Sig),
+    camino3(Sig, Fin, Tablero, RestoCam),
+    Cam = [Inicio | RestoCam]
+  ), Caminos),
+  minimos(Caminos, CaminosMinimos),
+  assert(camino3lookup(Inicio, Fin, Tablero, CaminosMinimos)),
+  member(Camino, CaminosMinimos).
+
+% minimos(+ListaDeListas, -ListasMasCortas)
+minimos(ListaDeListas, ListasMasCortas) :-
+  bagof(L, (
+    member(L, ListaDeListas),
+    length(L, N),
+    forall(member(Other, ListaDeListas), (length(Other, M), N =< M))
+  ), ListasMasCortas).
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%
 %% Tableros simultáneos
@@ -177,3 +182,76 @@ camino3(_, _, _, _).
 %% sólo por celdas transitables de ambos tableros.
 %% Nota: Es posible una implementación que resuelva en forma inmediata casos en los que trivialmente no existe camino dual posible.
 caminoDual(_, _, _, _, _).
+
+
+%% Predicados útiles para el desarrollo
+
+%% Visualización de un tablero y un camino sobre el mismo.
+% dibujarTableroConCamino(+Tablero, +Camino).
+dibujarTableroConCamino(Tablero, Camino) :-
+	tablero(_, Columnas, Tablero),
+	write('┌'),
+	forall(between(1, Columnas, I), write('───')),
+	write('──┐'),
+	nl,
+	forall(nth0(NFila, Tablero, Fila), dibujarFila(NFila, Fila, Camino)),
+	write('└'),
+	forall(between(1, Columnas, I), write('───')),
+	write('──┘').
+
+% dibujarFila(+Nfila, +Fila, +Camino)
+dibujarFila(NFila, Fila, Camino) :-
+	write('│'),
+	forall(
+	  nth0(NCol, Fila, X),
+	  (
+	    (
+	      nth0(Step, Camino, pos(NFila, NCol)), atom_concat('  ', Step, Yaux), sub_atom(Yaux, _, 3, 0, Y);
+	      var(X), Y = '   ';
+	      Y = ' ▒▒'
+	    ),
+	    write(Y)
+	  )
+	),
+	write('  │'),
+	nl.
+
+
+%% Tableros de ejemplo
+% tablero(+Nombre, -T).
+tablero(ej5x5, T) :-
+	tablero(5, 5, T),
+	ocupar(pos(1, 1), T),
+	ocupar(pos(1, 2), T).
+
+tablero(libre20, T) :-
+	tablero(20, 20, T).
+
+tablero(ej3x3diagonal, T) :-
+	tablero(3, 3, T),
+	ocupar(pos(0, 0), T),
+	ocupar(pos(1, 1), T),
+	ocupar(pos(2, 2), T).
+
+tablero(ocupado2x3, T) :-
+	tablero(2, 3, T),
+	ocupar(pos(0, 0), T),
+	ocupar(pos(0, 1), T),
+	ocupar(pos(0, 2), T),
+	ocupar(pos(1, 0), T),
+	ocupar(pos(1, 1), T),
+	ocupar(pos(1, 2), T).
+
+%% _ X _ _ _ 
+%% _ X _ X _ 
+%% _ _ _ X _ 
+%% _ _ _ X _ 
+tablero(ej4x5conObstaculos, T) :-
+	tablero(4, 5, T),
+	ocupar(pos(0, 1), T),
+	ocupar(pos(1, 1), T),
+	ocupar(pos(1, 3), T),
+	ocupar(pos(2, 3), T),
+	ocupar(pos(3, 3), T).
+
+

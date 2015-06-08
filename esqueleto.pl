@@ -1,6 +1,6 @@
-%%%%%%%%%%%%%%%%%%%%%%%%
-%% Tablero
-%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%
+%% Tablero %%
+%%%%%%%%%%%%%
 
 %% Ejercicio 1
 %% tablero(+Filas, +Columnas, -Tablero) instancia una estructura de tablero en blanco
@@ -69,9 +69,9 @@ libre(Pos, Tablero) :-
 	var(Celda).
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%
-%% Definicion de caminos
-%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Definicion de caminos %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% Ejercicio 5
 %% camino(+Inicio, +Fin, +Tablero, -Camino) será verdadero cuando Camino sea una lista
@@ -202,7 +202,8 @@ dibujarTableroConCamino(Tablero, Camino) :-
 	forall(nth0(NFila, Tablero, Fila), dibujarFila(NFila, Fila, Camino)),
 	write('└'),
 	forall(between(1, Columnas, I), write('───')),
-	write('──┘').
+	write('──┘'),
+        nl.
 
 % dibujarFila(+Nfila, +Fila, +Camino)
 dibujarFila(NFila, Fila, Camino) :-
@@ -222,12 +223,35 @@ dibujarFila(NFila, Fila, Camino) :-
 	nl.
 
 
-%% Tableros de ejemplo
+%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Tableros de ejemplo %%
+%%%%%%%%%%%%%%%%%%%%%%%%%
+
 % tablero(+Nombre, -T).
+
+%% ┌─────────────────┐
+%% │                 │
+%% │    ▒▒ ▒▒        │
+%% │                 │
+%% │                 │
+%% │                 │
+%% └─────────────────┘
 tablero(ej5x5, T) :-
 	tablero(5, 5, T),
 	ocupar(pos(1, 1), T),
 	ocupar(pos(1, 2), T).
+
+%% ┌─────────────────┐
+%% │                 │
+%% │          ▒▒     │
+%% │       ▒▒        │
+%% │                 │
+%% │                 │
+%% └─────────────────┘
+tablero(ej5x5_2, T) :-
+	tablero(5, 5, T),
+	ocupar(pos(1, 3), T),
+	ocupar(pos(2, 2), T).
 
 tablero(libre20, T) :-
 	tablero(20, 20, T).

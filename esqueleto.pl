@@ -175,16 +175,18 @@ minimos(ListaDeListas, ListasMasCortas) :-
 	), ListasMasCortas).
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%
-%% Tableros simultáneos
-%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Tableros simultáneos %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% Ejercicio 9
 %% caminoDual(+Inicio, +Fin, +Tablero1, +Tablero2, -Camino) será verdadero
 %% cuando Camino sea un camino desde Inicio hasta Fin pasando al mismo tiempo
 %% sólo por celdas transitables de ambos tableros.
 %% Nota: Es posible una implementación que resuelva en forma inmediata casos en los que trivialmente no existe camino dual posible.
-caminoDual(_, _, _, _, _).
+caminoDual(Inicio, Fin, Tablero1, Tablero2, Camino) :-
+	camino2(Inicio, Fin, Tablero1, Camino),
+	camino2(Inicio, Fin, Tablero2, Camino).
 
 
 %% Predicados útiles para el desarrollo

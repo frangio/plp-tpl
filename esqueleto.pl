@@ -151,12 +151,15 @@ camino3(Inicio, Fin, Tablero, Camino) :-
 	!,
 	member(Camino, Caminos).
 
-camino3(Inicio, Inicio, Tablero, [Inicio]) :- !, libre(Inicio, Tablero).
+camino3(Inicio, Fin, Tablero, Camino) :- camino3SinVisitadas(Inicio, Fin, Tablero, Camino, [Inicio]).
 
-camino3(Inicio, Fin, Tablero, Camino) :-
+camino3SinVisitadas(Inicio, Inicio, Tablero, [Inicio], _) :- !, libre(Inicio, Tablero).
+
+camino3SinVisitadas(Inicio, Fin, Tablero, Camino, Visitadas) :-
 	bagof(Cam, Sig^(
 	  vecinoLibre(Inicio, Tablero, Sig),
-	  camino3(Sig, Fin, Tablero, RestoCam),
+          not(member(Sig, Visitadas)),
+	  camino3SinVisitadas(Sig, Fin, Tablero, RestoCam, [Sig | Visitadas]),
 	  Cam = [Inicio | RestoCam]
 	), Caminos),
 	minimos(Caminos, CaminosMinimos),

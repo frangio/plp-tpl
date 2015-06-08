@@ -146,8 +146,10 @@ cantidadDeCaminos(Inicio, Fin, Tablero, N) :-
 %% todos los caminos pero en orden creciente de longitud.
 camino2(_, _, _, _).
 
-caminoDeLongitud(+Inicio, +Fin, +Tablero, +Longitud, -Camino) :-
+%% caminoDeLongitud(+Inicio, +Fin, +Tablero, +Longitud, -Camino) :-
+caminoDeLongitud(Inicio, Fin, Tablero, Longitud, Camino) :-
 	camino(Inicio, Fin, Tablero, Camino),
+	ground(Camino),
 	length(Camino, Longitud).
 
 %% Ejercicio 8

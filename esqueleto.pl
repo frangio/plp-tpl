@@ -202,6 +202,42 @@ minimos(ListaDeListas, ListasMasCortas) :-
 	), ListasMasCortas).
 
 
+
+%%%%camino4 intenta ser camino3 pero con otra idea%%%%%%
+
+:- dynamic minimaDistancia/2.
+
+%DISCLAIMER: el resultado depende del orden en el que se evaluan los vecinos.
+camino4(Inicio, Fin, Tablero, Camino) :-
+    libre(Inicio, Tablero),
+    retractall(minimaDistancia(X,Y)),
+    %al principio todos tienen distancia como 0 (pensar como el infinito de dijkstra).
+    assert(minimaDistancia(X,0)),
+	caminoSinVisitadas4(Inicio, Fin, Tablero, Camino, [Inicio]).
+
+% caminoSinVisitadas4(+Inicio, +Fin, +Tablero, -Camino, +Visitadas)
+caminoSinVisitadas4(Pos, Pos, Tablero, [Pos], Visitadas):- libre(Pos, Tablero).
+caminoSinVisitadas4(Inicio, Fin, Tablero,[Inicio|RestoCamino], Visitadas) :-
+	posicionValida(Inicio, Tablero),
+    posicionValida(Fin, Tablero),
+	vecinoLibre(Inicio, Tablero, SiguientePaso),
+	not(member(SiguientePaso, Visitadas)),
+	length(Visitadas, L),
+	minimaDistanciaASiguiente(SiguientePaso, L),
+	%agrego al principio de la base de conocimiento porque me gustaria que se evalue primero.
+	asserta(minimaDistancia(SiguientePaso, L)),
+	caminoSinVisitadas4(SiguientePaso, Fin, Tablero, RestoCamino, [SiguientePaso|Visitadas]).
+
+%aca no calcule ninguna distancia para la posicion
+minimaDistanciaASiguiente(Posicion, L):- minimaDistancia(Posicion, 0).
+%aca tengo por lo menos una distancia. me fijo si la que tengo ahora es "mejor".
+minimaDistanciaASiguiente(Posicion, L):- minimaDistancia(Posicion, D),!, L < D.
+
+
+
+
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Tableros simultáneos %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -310,4 +346,4 @@ tablero(ej4x5conObstaculos, T) :-
 	ocupar(pos(2, 3), T),
 	ocupar(pos(3, 3), T).
 
-
+tablero(ej2x2, T):- tablero(2,2,T).

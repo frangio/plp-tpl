@@ -162,14 +162,18 @@ cantidadDeCaminos2(Inicio, Fin, Tablero, N) :-
 	length(Bag, N).
 
 %% Ejercicio 8
-%% camino3(+Inicio, +Fin, +Tablero, -Camino) ídem camino2/4 pero se espera que
-%% se reduzca drásticamente el espacio de búsqueda.
-%% En el proceso de generar los potenciales caminos, se pueden ir sacando algunas conclusiones.
-%% Por ejemplo, si se está en la celda (3, 4) y se dieron ya 6 pasos desde el Inicio,
-%% entonces no tiene sentido seguir evaluando cualquier camino que implique llegar a la celda (3, 4)
-%% desde Inicio en más de 6 pasos.
-%% Notar que dos ejecuciones de camino3/4 con los mismos argumentos deben dar los mismos resultados.
-%% En este ejercicio se permiten el uso de predicados: dynamic/1, asserta/1, assertz/1 y retractall/1.
+% camino3(+Inicio, +Fin, +Tablero, -Camino)
+% Ídem camino2/4 pero se espera que se reduzca drásticamente el espacio
+% de búsqueda.
+% En el proceso de generar los potenciales caminos, se pueden ir sacando
+% algunas conclusiones. Por ejemplo, si se está en la celda (3, 4) y se
+% dieron ya 6 pasos desde el Inicio, entonces no tiene sentido seguir
+% evaluando cualquier camino que implique llegar a la celda (3, 4) desde
+% Inicio en más de 6 pasos.
+% Notar que dos ejecuciones de camino3/4 con los mismos argumentos deben
+% dar los mismos resultados.
+% En este ejercicio se permiten el uso de predicados: dynamic/1,
+% asserta/1, assertz/1 y retractall/1.
 
 :- dynamic camino3lookup/5.
 
@@ -204,41 +208,6 @@ minimos(ListaDeListas, ListasMasCortas) :-
 	), ListasMasCortas).
 
 :- minimos([[1,2], [10], [1,2,3], [5]], L), mismos_elementos(L, [[10], [5]]).
-
-
-
-%%%%camino4 intenta ser camino3 pero con otra idea%%%%%%
-
-:- dynamic minimaDistancia/2.
-
-%DISCLAIMER: el resultado depende del orden en el que se evaluan los vecinos.
-camino4(Inicio, Fin, Tablero, Camino) :-
-    libre(Inicio, Tablero),
-    retractall(minimaDistancia(X,Y)),
-    %al principio todos tienen distancia como 0 (pensar como el infinito de dijkstra).
-    assert(minimaDistancia(X,0)),
-	caminoSinVisitadas4(Inicio, Fin, Tablero, Camino, [Inicio]).
-
-% caminoSinVisitadas4(+Inicio, +Fin, +Tablero, -Camino, +Visitadas)
-caminoSinVisitadas4(Pos, Pos, Tablero, [Pos], Visitadas):- libre(Pos, Tablero).
-caminoSinVisitadas4(Inicio, Fin, Tablero,[Inicio|RestoCamino], Visitadas) :-
-	posicionValida(Inicio, Tablero),
-    posicionValida(Fin, Tablero),
-	vecinoLibre(Inicio, Tablero, SiguientePaso),
-	not(member(SiguientePaso, Visitadas)),
-	length(Visitadas, L),
-	minimaDistanciaASiguiente(SiguientePaso, L),
-	%agrego al principio de la base de conocimiento porque me gustaria que se evalue primero.
-	asserta(minimaDistancia(SiguientePaso, L)),
-	caminoSinVisitadas4(SiguientePaso, Fin, Tablero, RestoCamino, [SiguientePaso|Visitadas]).
-
-%aca no calcule ninguna distancia para la posicion
-minimaDistanciaASiguiente(Posicion, L):- minimaDistancia(Posicion, 0).
-%aca tengo por lo menos una distancia. me fijo si la que tengo ahora es "mejor".
-minimaDistanciaASiguiente(Posicion, L):- minimaDistancia(Posicion, D),!, L < D.
-
-
-
 
 
 

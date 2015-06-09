@@ -96,42 +96,42 @@ libre(Pos, Tablero) :-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% Ejercicio 5
-%% camino(+Inicio, +Fin, +Tablero, -Camino) será verdadero cuando Camino sea una lista
-%% [pos(F1, C1), pos(F2, C2),..., pos(Fn, Cn)] que denoten un camino desde Inicio
-%% hasta Fin pasando solo por celdas transitables.
-%% Además se espera que Camino no contenga ciclos.
-%% Notar que la cantidad de caminos es finita y por ende se tiene que poder recorrer
-%% todas las alternativas eventualmente.
-%% Consejo: Utilizar una lista auxiliar con las posiciones visitadas
+% camino(+Inicio, +Fin, +Tablero, -Camino)
+% Será verdadero cuando Camino sea una lista [pos(F1, C1),
+% pos(F2, C2), ..., pos(Fn, Cn)] que denoten un camino desde
+% Inicio hasta Fin pasando solo por celdas transitables.
+% Además se espera que Camino no contenga ciclos.
+% Notar que la cantidad de caminos es finita y por ende se
+% tiene que poder recorrer todas las alternativas
+% eventualmente.
 camino(Inicio, Fin, Tablero, Camino) :-
         libre(Inicio, Tablero),
+        posicionValida(Fin, Tablero),
 	caminoSinVisitadas(Inicio, Fin, Tablero, Camino, [Inicio]).
 
 % caminoSinVisitadas(+Inicio, +Fin, +Tablero, -Camino, +Visitadas)
 caminoSinVisitadas(Pos, Pos, Tablero, [Pos], _) :- !, libre(Pos, Tablero).
 caminoSinVisitadas(Inicio, Fin, Tablero,[Inicio|RestoCamino], Visitadas) :-
-	Inicio \= Fin,
-	posicionValida(Inicio, Tablero),
-        posicionValida(Fin, Tablero),
 	vecinoLibre(Inicio, Tablero, SiguientePaso),
 	not(member(SiguientePaso, Visitadas)),
 	caminoSinVisitadas(SiguientePaso, Fin, Tablero, RestoCamino, [SiguientePaso|Visitadas]).
 
-
 %% Ejercicio 6
-%% cantidadDeCaminos(+Inicio, +Fin, +Tablero, ?N) que indique la cantidad de caminos
-%% posibles sin ciclos entre Inicio y Fin.
+% cantidadDeCaminos(+Inicio, +Fin, +Tablero, ?N)
+% Indica la cantidad de caminos posibles sin ciclos entre
+% Inicio y Fin.
 cantidadDeCaminos(Inicio, Fin, Tablero, N) :- 
-	bagof(Camino, camino(Inicio, Fin, Tablero, Camino), Bag),
+	findall(Camino, camino(Inicio, Fin, Tablero, Camino), Bag),
 	length(Bag, N).
 
 %% Ejercicio 7
-%% camino2(+Inicio, +Fin, +Tablero, -Camino) ídem camino/4 pero se espera una heurística
-%% que mejore las soluciones iniciales.
-%% No se espera que la primera solución sea necesariamente la mejor.
-%% Una solución es mejor mientras menos pasos se deba dar para llegar a
-%% destino (distancia Manhattan). Por lo tanto, el predicado deberá devolver de a uno,
-%% todos los caminos pero en orden creciente de longitud.
+% camino2(+Inicio, +Fin, +Tablero, -Camino)
+% Ídem camino/4 pero se espera una heurística
+% que mejore las soluciones iniciales.
+% No se espera que la primera solución sea necesariamente la mejor.
+% Una solución es mejor mientras menos pasos se deba dar para llegar a
+% destino (distancia Manhattan). Por lo tanto, el predicado deberá devolver de a uno,
+% todos los caminos pero en orden creciente de longitud.
 
 camino2(Inicio, Fin, Tablero, Camino) :-
         libre(Inicio, Tablero),
@@ -148,7 +148,7 @@ caminoSinVisitadas2(Inicio, Fin, Tablero,[Inicio|RestoCamino], Visitadas) :-
 	not(member(SiguientePaso, Visitadas)),
 	caminoSinVisitadas2(SiguientePaso, Fin, Tablero, RestoCamino, [SiguientePaso|Visitadas]).
 
-segunDistancia(Fin, Pos, List) :- predsort(predDistancia(Fin), List, Sorted),!, member(Pos, Sorted).
+segunDistancia(Fin, Pos, List) :- predsort(predDistancia(Fin), List, Sorted), !, member(Pos, Sorted).
 
 predDistancia(Fin, Delta, Pos1, Pos2) :-
 	distancia(Fin, Pos1, D1), distancia(Fin, Pos2, D2),
@@ -158,7 +158,7 @@ distancia(pos(X1, Y1), pos(X2, Y2), D) :- D is abs(X1 - X2) + abs(Y1 - Y2).
 
 
 cantidadDeCaminos2(Inicio, Fin, Tablero, N) :- 
-	bagof(Camino, camino2(Inicio, Fin, Tablero, Camino), Bag),
+	findall(Camino, camino2(Inicio, Fin, Tablero, Camino), Bag),
 	length(Bag, N).
 
 %% Ejercicio 8
@@ -171,35 +171,39 @@ cantidadDeCaminos2(Inicio, Fin, Tablero, N) :-
 %% Notar que dos ejecuciones de camino3/4 con los mismos argumentos deben dar los mismos resultados.
 %% En este ejercicio se permiten el uso de predicados: dynamic/1, asserta/1, assertz/1 y retractall/1.
 
-:- dynamic camino3lookup/4.
-
-camino3(Inicio, Fin, Tablero, Camino) :-
-	camino3lookup(Inicio, Fin, Tablero, Caminos),
-	!,
-	member(Camino, Caminos).
+:- dynamic camino3lookup/5.
 
 camino3(Inicio, Fin, Tablero, Camino) :- camino3SinVisitadas(Inicio, Fin, Tablero, Camino, [Inicio]).
 
 camino3SinVisitadas(Inicio, Inicio, Tablero, [Inicio], _) :- !, libre(Inicio, Tablero).
 
+camino3SinVisitadas(Inicio, Fin, Tablero, Camino, Visitadas1) :-
+	camino3lookup(Inicio, Fin, Tablero, Caminos, Visitadas2),
+	mismos_elementos(Visitadas1, Visitadas2),
+	!,
+	member(Camino, Caminos).
+
+% Esto es en esencia el algoritmo de Dijkstra.
 camino3SinVisitadas(Inicio, Fin, Tablero, Camino, Visitadas) :-
-	bagof(Cam, Sig^(
+	bagof(Cam, (
 	  vecinoLibre(Inicio, Tablero, Sig),
           not(member(Sig, Visitadas)),
 	  camino3SinVisitadas(Sig, Fin, Tablero, RestoCam, [Sig | Visitadas]),
 	  Cam = [Inicio | RestoCam]
 	), Caminos),
 	minimos(Caminos, CaminosMinimos),
-	assert(camino3lookup(Inicio, Fin, Tablero, CaminosMinimos)),
+	assert(camino3lookup(Inicio, Fin, Tablero, CaminosMinimos, Visitadas)),
 	member(Camino, CaminosMinimos).
 
 % minimos(+ListaDeListas, -ListasMasCortas)
 minimos(ListaDeListas, ListasMasCortas) :-
-	bagof(L, (
+	findall(L, (
 	  member(L, ListaDeListas),
 	  length(L, N),
 	  forall(member(Other, ListaDeListas), (length(Other, M), N =< M))
 	), ListasMasCortas).
+
+:- minimos([[1,2], [10], [1,2,3], [5]], L), mismos_elementos(L, [[10], [5]]).
 
 
 
@@ -243,13 +247,18 @@ minimaDistanciaASiguiente(Posicion, L):- minimaDistancia(Posicion, D),!, L < D.
 %%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% Ejercicio 9
-%% caminoDual(+Inicio, +Fin, +Tablero1, +Tablero2, -Camino) será verdadero
-%% cuando Camino sea un camino desde Inicio hasta Fin pasando al mismo tiempo
-%% sólo por celdas transitables de ambos tableros.
-%% Nota: Es posible una implementación que resuelva en forma inmediata casos en los que trivialmente no existe camino dual posible.
+% caminoDual(+Inicio, +Fin, +Tablero1, +Tablero2, -Camino)
+% Será verdadero cuando Camino sea un camino desde Inicio
+% hasta Fin pasando al mismo tiempo sólo por celdas
+% transitables de ambos tableros.
+% Nota: Es posible una implementación que resuelva en forma
+% inmediata casos en los que trivialmente no existe camino
+% dual posible.
+
+% Usa generate and test.
 caminoDual(Inicio, Fin, Tablero1, Tablero2, Camino) :-
-	camino2(Inicio, Fin, Tablero1, Camino),
-	camino2(Inicio, Fin, Tablero2, Camino).
+	camino2(Inicio, Fin, Tablero1, Camino), % Genera un camino en Tablero1.
+	camino2(Inicio, Fin, Tablero2, Camino). % Chequea que es válido en Tablero2.
 
 
 %% Predicados útiles para el desarrollo
@@ -292,25 +301,25 @@ dibujarFila(NFila, Fila, Camino) :-
 
 % tablero(+Nombre, -T).
 
-%% ┌─────────────────┐
-%% │                 │
-%% │    ▒▒ ▒▒        │
-%% │                 │
-%% │                 │
-%% │                 │
-%% └─────────────────┘
+% ┌─────────────────┐
+% │                 │
+% │    ▒▒ ▒▒        │
+% │                 │
+% │                 │
+% │                 │
+% └─────────────────┘
 tablero(ej5x5, T) :-
 	tablero(5, 5, T),
 	ocupar(pos(1, 1), T),
 	ocupar(pos(1, 2), T).
 
-%% ┌─────────────────┐
-%% │                 │
-%% │          ▒▒     │
-%% │       ▒▒        │
-%% │                 │
-%% │                 │
-%% └─────────────────┘
+% ┌─────────────────┐
+% │                 │
+% │          ▒▒     │
+% │       ▒▒        │
+% │                 │
+% │                 │
+% └─────────────────┘
 tablero(ej5x5_2, T) :-
 	tablero(5, 5, T),
 	ocupar(pos(1, 3), T),
@@ -319,12 +328,21 @@ tablero(ej5x5_2, T) :-
 tablero(libre20, T) :-
 	tablero(20, 20, T).
 
+% ┌──────────┐
+% │ ▒▒       │
+% │    ▒▒    │
+% │       ▒▒ │
+% └──────────┘
 tablero(ej3x3diagonal, T) :-
 	tablero(3, 3, T),
 	ocupar(pos(0, 0), T),
 	ocupar(pos(1, 1), T),
 	ocupar(pos(2, 2), T).
 
+% ┌──────────┐
+% │ ▒▒ ▒▒ ▒▒ │
+% │ ▒▒ ▒▒ ▒▒ │
+% └──────────┘
 tablero(ocupado2x3, T) :-
 	tablero(2, 3, T),
 	ocupar(pos(0, 0), T),
@@ -334,10 +352,12 @@ tablero(ocupado2x3, T) :-
 	ocupar(pos(1, 1), T),
 	ocupar(pos(1, 2), T).
 
-%% _ X _ _ _ 
-%% _ X _ X _ 
-%% _ _ _ X _ 
-%% _ _ _ X _ 
+% ┌─────────────────┐
+% │    ▒▒           │
+% │    ▒▒   ▒▒      │
+% │         ▒▒      │
+% │         ▒▒      │
+% └─────────────────┘
 tablero(ej4x5conObstaculos, T) :-
 	tablero(4, 5, T),
 	ocupar(pos(0, 1), T),
@@ -346,4 +366,8 @@ tablero(ej4x5conObstaculos, T) :-
 	ocupar(pos(2, 3), T),
 	ocupar(pos(3, 3), T).
 
-tablero(ej2x2, T):- tablero(2,2,T).
+% ┌───────┐
+% │       │
+% │       │
+% └───────┘
+tablero(ej2x2, T) :- tablero(2,2,T).

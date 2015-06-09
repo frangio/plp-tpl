@@ -3,8 +3,9 @@
 %%%%%%%%%%%%%
 
 %% Ejercicio 1
-%% tablero(+Filas, +Columnas, -Tablero) instancia una estructura de tablero en blanco
-%% de Filas x Columnas, con todas las celdas libres.
+% tablero(+Filas, +Columnas, -Tablero)
+% Instancia una estructura de tablero en blanco de Filas x
+% Columnas, con todas las celdas libres.
 
 tablero(Filas, Columnas, Tablero) :-
 	length(Tablero, Filas),
@@ -13,61 +14,82 @@ tablero(Filas, Columnas, Tablero) :-
 % flip(+R, ?X, ?Y)
 flip(R, X, Y) :- call(R, Y, X).
 
+% Ejemplos
+:- tablero(1, 1, T), T =@= [[_]].
+:- tablero(3, 4, T), T =@= [[_,_,_,_],[_,_,_,_],[_,_,_,_]].
+
 %% Ejercicio 2
-%% ocupar(+Pos, ?Tablero) será verdadero cuando la posición indicada esté ocupada.
+% ocupar(+Pos, ?Tablero)
+% Será verdadero cuando la posición indicada esté ocupada.
 ocupar(pos(F, C), Tablero) :- posicion(pos(F, C), Tablero, ocupada).
 
-%% posicion(+Pos, +Tablero, ?Contenido)
+% posicion(+Pos, +Tablero, ?Contenido)
+% Será verdadero cuando el valor en la posicón Pos en el
+% Tablero unifique con Contenido.
 posicion(pos(F, C), Tablero, Contenido) :-
 	nth0(F, Tablero, Fila),
 	nth0(C, Fila, Contenido).
 
+% Ejemplos
+:- tablero(2, 3, T), ocupar(pos(0, 0), T), posicion(pos(0, 0), T, ocupada).
+
 %% Ejercicio 3
-%% vecino(+Pos, +Tablero, -PosVecino) será verdadero cuando PosVecino sea
-%% un átomo de la forma pos(F', C') y pos(F', C') sea una celda contigua a
-%% pos(F, C), donde Pos=pos(F, C). Las celdas contiguas puede ser a lo sumo cuatro
-%% dado que el robot se moverá en forma ortogonal.
-%% Usamos generate&test
+% vecino(+Pos, +Tablero, -PosVecino)
+% Será verdadero cuando PosVecino sea un átomo de la forma
+% pos(F', C') y pos(F', C') sea una celda contigua a pos(F,
+% C), donde Pos=pos(F, C). Las celdas contiguas puede ser a
+% lo sumo cuatro dado que el robot se moverá en forma
+% ortogonal.
+
+% Usamos Generate And Test
 vecino(pos(F, C), Tablero, pos(FV, CV)) :-
 	posibleVecino(pos(F, C), pos(FV, CV)),
 	posicionValida(pos(FV, CV), Tablero).
 
-%% posibleVecino(+Pos,-Pos')
-%% Devuelve en Pos' uno de los cuatro posibles vecinos de Pos,
-%% moviendose ortogonalmente.
+% posibleVecino(+Pos1,-Pos2)
+% Instancia Pos2 en uno de los cuatro posibles vecinos de
+% Pos1, moviéndose ortogonalmente.
 posibleVecino(pos(F, C), pos(FV, CV)) :- FV is F - 1, CV is C.
 posibleVecino(pos(F, C), pos(FV, CV)) :- FV is F + 1, CV is C.
 posibleVecino(pos(F, C), pos(FV, CV)) :- FV is F, CV is C - 1.
 posibleVecino(pos(F, C), pos(FV, CV)) :- FV is F, CV is C + 1.
 
-%% posicionValida(+Pos, +Tablero)
+% posicionValida(+Pos, +Tablero)
 posicionValida(pos(F, C), Tablero) :-
-	tamanio(Tablero, NumeroF, NumeroC),
+	tablero(NumeroF, NumeroC, Tablero),
 	F >= 0, F < NumeroF,
 	C >= 0, C < NumeroC.
 
-%% tamanio(+Tablero, -F, -C)
-%% A pesar de que podriamos usar tablero(F, C, T) para obtener
-%% F y C (se puede dado a cómo esta implementada),
-%% su nomenclatura de instanciacion permite que se cambie
-%% ese comportamiento y ya no nos sirva.
-tamanio(Tablero, F, C) :-
-	length(Tablero, F),
-	nth0(0, Tablero, Fila),
-	length(Fila, C).
+% Ejemplos
+
+% mismos_elementos(+L1, +L2)
+% Es verdadero si L1 y L2 tienen los mismos elementos,
+% posiblemente en distinto orden.
+mismos_elementos(L1, L2) :- msort(L1, L1S), msort(L2, L2S), L1S == L2S.
+
+:-  tablero(3, 3, T), bagof(Pos, vecino(pos(0, 0), T, Pos), Vecinos),
+    mismos_elementos(Vecinos, [pos(0, 1), pos(1, 0)]).
+:-  tablero(3, 3, T), bagof(Pos, vecino(pos(1, 1), T, Pos), Vecinos),
+    mismos_elementos(Vecinos, [pos(0, 1), pos(1, 0), pos(1, 2), pos(2, 1)]).
 
 %% Ejercicio 4
-%% vecinoLibre(+Pos, +Tablero, -PosVecino) idem vecino/3 pero además PosVecino
-%% debe ser una celda transitable (no ocupada) en el Tablero
+% vecinoLibre(+Pos, +Tablero, -PosVecino)
+% Ídem vecino/3 pero además PosVecino debe ser una celda
+% transitable (no ocupada) en el Tablero.
 vecinoLibre(Pos, Tablero, PosVecino) :-
 	vecino(Pos, Tablero, PosVecino),
 	libre(PosVecino, Tablero).
 
-%% libre(+Pos, +Tablero) 
+% libre(+Pos, +Tablero) 
 libre(Pos, Tablero) :-
 	posicion(Pos, Tablero, Celda),
 	var(Celda).
 
+% Ejemplos
+
+:-  tablero(2, 2, T), ocupar(pos(0, 1), T),
+    bagof(Pos, vecinoLibre(pos(0, 0), T, Pos), VecinosLibres),
+    VecinosLibres == [pos(1, 0)].
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Definicion de caminos %%

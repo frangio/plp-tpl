@@ -67,9 +67,9 @@ posicionValida(pos(F, C), Tablero) :-
 % posiblemente en distinto orden.
 mismos_elementos(L1, L2) :- msort(L1, L1S), msort(L2, L2S), L1S == L2S.
 
-:-  tablero(3, 3, T), bagof(Pos, vecino(pos(0, 0), T, Pos), Vecinos),
+:-  tablero(3, 3, T), findall(Pos, vecino(pos(0, 0), T, Pos), Vecinos),
     mismos_elementos(Vecinos, [pos(0, 1), pos(1, 0)]).
-:-  tablero(3, 3, T), bagof(Pos, vecino(pos(1, 1), T, Pos), Vecinos),
+:-  tablero(3, 3, T), findall(Pos, vecino(pos(1, 1), T, Pos), Vecinos),
     mismos_elementos(Vecinos, [pos(0, 1), pos(1, 0), pos(1, 2), pos(2, 1)]).
 
 %% Ejercicio 4
@@ -88,7 +88,7 @@ libre(Pos, Tablero) :-
 % Ejemplos
 
 :-  tablero(2, 2, T), ocupar(pos(0, 1), T),
-    bagof(Pos, vecinoLibre(pos(0, 0), T, Pos), VecinosLibres),
+    findall(Pos, vecinoLibre(pos(0, 0), T, Pos), VecinosLibres),
     VecinosLibres == [pos(1, 0)].
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -144,11 +144,11 @@ caminoSinVisitadas2(Inicio, Fin, Tablero,[Inicio|RestoCamino], Visitadas) :-
 	posicionValida(Inicio, Tablero),
         posicionValida(Fin, Tablero),
 	bagof(Sig, vecinoLibre(Inicio, Tablero, Sig), Siguientes),
-	segunDistancia(Fin, SiguientePaso, Siguientes),
+	memberSegunDistancia(Fin, SiguientePaso, Siguientes),
 	not(member(SiguientePaso, Visitadas)),
 	caminoSinVisitadas2(SiguientePaso, Fin, Tablero, RestoCamino, [SiguientePaso|Visitadas]).
 
-segunDistancia(Fin, Pos, List) :- predsort(predDistancia(Fin), List, Sorted), !, member(Pos, Sorted).
+memberSegunDistancia(Fin, Pos, List) :- predsort(predDistancia(Fin), List, Sorted), !, member(Pos, Sorted).
 
 predDistancia(Fin, Delta, Pos1, Pos2) :-
 	distancia(Fin, Pos1, D1), distancia(Fin, Pos2, D2),
@@ -189,8 +189,9 @@ camino3SinVisitadas(Inicio, Fin, Tablero, Camino, Visitadas1) :-
 
 % Esto es en esencia el algoritmo de Dijkstra.
 camino3SinVisitadas(Inicio, Fin, Tablero, Camino, Visitadas) :-
-	bagof(Cam, (
-	  vecinoLibre(Inicio, Tablero, Sig),
+	findall(Cam, (
+	  bagof(Sig, vecinoLibre(Inicio, Tablero, Sig), Siguientes),
+	  memberSegunDistancia(Fin, Sig, Siguientes),
           not(member(Sig, Visitadas)),
 	  camino3SinVisitadas(Sig, Fin, Tablero, RestoCam, [Sig | Visitadas]),
 	  Cam = [Inicio | RestoCam]

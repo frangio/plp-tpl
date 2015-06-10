@@ -61,6 +61,22 @@ posicionValida(pos(F, C), Tablero) :-
 	C >= 0, C < NumeroC.
 
 % Ejemplos
+test(vecino,1) :- tablero(3,3, T), 
+        vecino(pos(0,0), T, pos(0,1)),
+	    vecino(pos(0,0), T, pos(1,0)),
+    not(vecino(pos(0,0), T, pos(1,1))),
+    not(vecino(pos(0,0), T, pos(0,2))), !.
+ 
+test(vecino,2) :-  tablero(3,3, T), 
+	vecino(pos(1,1), T, pos(0,1)),
+	vecino(pos(1,1), T, pos(1,0)), 
+	vecino(pos(1,1), T, pos(1,2)), 
+	vecino(pos(1,1), T, pos(2,1)),
+not(vecino(pos(1,1), T, pos(0,0))),
+not(vecino(pos(1,1), T, pos(2,2))),
+not(vecino(pos(1,1), T, pos(2,0))),
+not(vecino(pos(1,1), T, pos(0,2))), !.
+
 
 % mismos_elementos(+L1, +L2)
 % Es verdadero si L1 y L2 tienen los mismos elementos,
@@ -179,6 +195,7 @@ cantidadDeCaminos2(Inicio, Fin, Tablero, N) :-
 
 camino3(Inicio, Fin, Tablero, Camino) :- camino3SinVisitadas(Inicio, Fin, Tablero, Camino, [Inicio]).
 
+%% camino3SinVisitadas(+Inicio, +Fin, +Tablero, -Camino, +Visitadas) 
 camino3SinVisitadas(Inicio, Inicio, Tablero, [Inicio], _) :- !, libre(Inicio, Tablero).
 
 camino3SinVisitadas(Inicio, Fin, Tablero, Camino, Visitadas1) :-

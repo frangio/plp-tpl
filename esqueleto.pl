@@ -190,8 +190,7 @@ camino3SinVisitadas(Inicio, Fin, Tablero, Camino, Visitadas1) :-
 % Esto es en esencia el algoritmo de Dijkstra.
 camino3SinVisitadas(Inicio, Fin, Tablero, Camino, Visitadas) :-
 	findall(Cam, (
-	  bagof(Sig, vecinoLibre(Inicio, Tablero, Sig), Siguientes),
-	  memberSegunDistancia(Fin, Sig, Siguientes),
+	  vecinoLibre(Inicio, Tablero, Sig),
           not(member(Sig, Visitadas)),
 	  camino3SinVisitadas(Sig, Fin, Tablero, RestoCam, [Sig | Visitadas]),
 	  Cam = [Inicio | RestoCam]

@@ -107,6 +107,118 @@ libre(Pos, Tablero) :-
     findall(Pos, vecinoLibre(pos(0, 0), T, Pos), VecinosLibres),
     VecinosLibres == [pos(1, 0)].
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Tableros de ejemplo %%
+%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% tablero(+Nombre, -T).
+
+% ┌────────────────┐
+% │                │
+% │    ▒▒ ▒▒       │
+% │                │
+% │                │
+% │                │
+% └────────────────┘
+tablero(ej5x5, T) :-
+	tablero(5, 5, T),
+	ocupar(pos(1, 1), T),
+	ocupar(pos(1, 2), T).
+
+% ┌────────────────┐
+% │                │
+% │          ▒▒    │
+% │       ▒▒       │
+% │                │
+% │                │
+% └────────────────┘
+tablero(ej5x5_2, T) :-
+	tablero(5, 5, T),
+	ocupar(pos(1, 3), T),
+	ocupar(pos(2, 2), T).
+
+% ┌────────────────┐
+% │          ▒▒    │
+% │    ▒▒    ▒▒    │
+% │    ▒▒          │
+% │    ▒▒    ▒▒    │
+% │          ▒▒    │
+% └────────────────┘
+tablero(complicado1, T) :-
+	tablero(5, 5, T),
+	ocupar(pos(1, 1), T),
+	ocupar(pos(2, 1), T),
+	ocupar(pos(3, 1), T),
+	ocupar(pos(0, 3), T),
+	ocupar(pos(1, 3), T),
+	ocupar(pos(3, 3), T),
+	ocupar(pos(4, 3), T).
+
+% ┌─────────────────────────┐
+% │          ▒▒    ▒▒       │
+% │ ▒▒    ▒▒ ▒▒    ▒▒ ▒▒    │
+% │                         │
+% │                         │
+% └─────────────────────────┘
+tablero(complicado2, T) :-
+	tablero(4, 8, T),
+	ocupar(pos(0, 3), T),
+	ocupar(pos(1, 0), T),
+	ocupar(pos(1, 2), T),
+	ocupar(pos(1, 3), T),
+	ocupar(pos(0, 5), T),
+	ocupar(pos(1, 5), T),
+	ocupar(pos(1, 6), T).
+
+tablero(libre20, T) :-
+	tablero(20, 20, T).
+
+% ┌──────────┐
+% │ ▒▒       │
+% │    ▒▒    │
+% │       ▒▒ │
+% └──────────┘
+tablero(ej3x3diagonal, T) :-
+	tablero(3, 3, T),
+	ocupar(pos(0, 0), T),
+	ocupar(pos(1, 1), T),
+	ocupar(pos(2, 2), T).
+
+% ┌──────────┐
+% │ ▒▒ ▒▒ ▒▒ │
+% │ ▒▒ ▒▒ ▒▒ │
+% └──────────┘
+tablero(ocupado2x3, T) :-
+	tablero(2, 3, T),
+	ocupar(pos(0, 0), T),
+	ocupar(pos(0, 1), T),
+	ocupar(pos(0, 2), T),
+	ocupar(pos(1, 0), T),
+	ocupar(pos(1, 1), T),
+	ocupar(pos(1, 2), T).
+
+% ┌────────────────┐
+% │    ▒▒          │
+% │    ▒▒    ▒▒    │
+% │          ▒▒    │
+% │          ▒▒    │
+% └────────────────┘
+tablero(ej4x5conObstaculos, T) :-
+	tablero(4, 5, T),
+	ocupar(pos(0, 1), T),
+	ocupar(pos(1, 1), T),
+	ocupar(pos(1, 3), T),
+	ocupar(pos(2, 3), T),
+	ocupar(pos(3, 3), T).
+
+% ┌───────┐
+% │       │
+% │       │
+% └───────┘
+tablero(ej2x2, T) :- tablero(2,2,T).
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Definicion de caminos %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -140,14 +252,22 @@ cantidadDeCaminos(Inicio, Fin, Tablero, N) :-
 	findall(Camino, camino(Inicio, Fin, Tablero, Camino), Bag),
 	length(Bag, N).
 
+% Ejemplos
+
+:- tablero(ej2x2, T), camino(pos(0, 0), pos(0, 1), T, [pos(0,0), pos(0,1)]).
+:- tablero(ej5x5, T), camino(pos(0, 0), pos(2, 3), T, [pos(0, 0), pos(1, 0), pos(2, 0), pos(2, 1), pos(2, 2), pos(2, 3)]).
+:- tablero(ej5x5, T), camino(pos(0, 0), pos(2, 3), T, [pos(0, 0), pos(0, 1), pos(0, 2), pos(0, 3), pos(1, 3), pos(2, 3)]).
+:- tablero(ej5x5, T), cantidadDeCaminos(pos(0, 0), pos(2, 3), T, 287).
+
 %% Ejercicio 7
 % camino2(+Inicio, +Fin, +Tablero, -Camino)
-% Ídem camino/4 pero se espera una heurística
-% que mejore las soluciones iniciales.
-% No se espera que la primera solución sea necesariamente la mejor.
-% Una solución es mejor mientras menos pasos se deba dar para llegar a
-% destino (distancia Manhattan). Por lo tanto, el predicado deberá devolver de a uno,
-% todos los caminos pero en orden creciente de longitud.
+% Ídem camino/4 pero se espera una heurística que mejore las
+% soluciones iniciales.
+% No se espera que la primera solución sea necesariamente la
+% mejor. Una solución es mejor mientras menos pasos se deba
+% dar para llegar a destino (distancia Manhattan). Por lo
+% tanto, el predicado deberá devolver de a uno, todos los
+% caminos pero en orden creciente de longitud.
 
 camino2(Inicio, Fin, Tablero, Camino) :-
         libre(Inicio, Tablero),
@@ -176,6 +296,13 @@ distancia(pos(X1, Y1), pos(X2, Y2), D) :- D is abs(X1 - X2) + abs(Y1 - Y2).
 cantidadDeCaminos2(Inicio, Fin, Tablero, N) :- 
 	findall(Camino, camino2(Inicio, Fin, Tablero, Camino), Bag),
 	length(Bag, N).
+
+% Ejemplos
+
+:- tablero(ej2x2, T), camino2(pos(0, 0), pos(0, 1), T, [pos(0,0), pos(0,1)]).
+:- tablero(ej5x5, T), camino2(pos(0, 0), pos(2, 3), T, [pos(0, 0), pos(1, 0), pos(2, 0), pos(2, 1), pos(2, 2), pos(2, 3)]).
+:- tablero(ej5x5, T), camino2(pos(0, 0), pos(2, 3), T, [pos(0, 0), pos(0, 1), pos(0, 2), pos(0, 3), pos(1, 3), pos(2, 3)]).
+:- tablero(ej5x5, T), cantidadDeCaminos2(pos(0, 0), pos(2, 3), T, 287).
 
 %% Ejercicio 8
 % camino3(+Inicio, +Fin, +Tablero, -Camino)
@@ -226,6 +353,9 @@ minimos(ListaDeListas, ListasMasCortas) :-
 
 :- minimos([[1,2], [10], [1,2,3], [5]], L), mismos_elementos(L, [[10], [5]]).
 
+% Ejemplos
+
+% :- 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -255,12 +385,12 @@ dibujarTableroConCamino(Tablero, Camino) :-
 	tablero(_, Columnas, Tablero),
 	write('┌'),
 	forall(between(1, Columnas, I), write('───')),
-	write('──┐'),
+	write('─┐'),
 	nl,
 	forall(nth0(NFila, Tablero, Fila), dibujarFila(NFila, Fila, Camino)),
 	write('└'),
 	forall(between(1, Columnas, I), write('───')),
-	write('──┘'),
+	write('─┘'),
         nl.
 
 % dibujarFila(+Nfila, +Fila, +Camino)
@@ -277,97 +407,5 @@ dibujarFila(NFila, Fila, Camino) :-
 	    write(Y)
 	  )
 	),
-	write('  │'),
+	write(' │'),
 	nl.
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%
-%% Tableros de ejemplo %%
-%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% tablero(+Nombre, -T).
-
-% ┌─────────────────┐
-% │                 │
-% │    ▒▒ ▒▒        │
-% │                 │
-% │                 │
-% │                 │
-% └─────────────────┘
-tablero(ej5x5, T) :-
-	tablero(5, 5, T),
-	ocupar(pos(1, 1), T),
-	ocupar(pos(1, 2), T).
-
-% ┌─────────────────┐
-% │                 │
-% │          ▒▒     │
-% │       ▒▒        │
-% │                 │
-% │                 │
-% └─────────────────┘
-tablero(ej5x5_2, T) :-
-	tablero(5, 5, T),
-	ocupar(pos(1, 3), T),
-	ocupar(pos(2, 2), T).
-
-% ┌─────────────────┐
-% │       ▒▒        │
-% │       ▒▒        │
-% │                 │
-% │       ▒▒        │
-% │       ▒▒        │
-% └─────────────────┘
-tablero(complicado, T) :-
-	tablero(5, 5, T),
-	ocupar(pos(0, 2), T),
-	ocupar(pos(1, 2), T),
-	ocupar(pos(3, 2), T),
-	ocupar(pos(4, 2), T).
-
-tablero(libre20, T) :-
-	tablero(20, 20, T).
-
-% ┌──────────┐
-% │ ▒▒       │
-% │    ▒▒    │
-% │       ▒▒ │
-% └──────────┘
-tablero(ej3x3diagonal, T) :-
-	tablero(3, 3, T),
-	ocupar(pos(0, 0), T),
-	ocupar(pos(1, 1), T),
-	ocupar(pos(2, 2), T).
-
-% ┌──────────┐
-% │ ▒▒ ▒▒ ▒▒ │
-% │ ▒▒ ▒▒ ▒▒ │
-% └──────────┘
-tablero(ocupado2x3, T) :-
-	tablero(2, 3, T),
-	ocupar(pos(0, 0), T),
-	ocupar(pos(0, 1), T),
-	ocupar(pos(0, 2), T),
-	ocupar(pos(1, 0), T),
-	ocupar(pos(1, 1), T),
-	ocupar(pos(1, 2), T).
-
-% ┌─────────────────┐
-% │    ▒▒           │
-% │    ▒▒    ▒▒     │
-% │          ▒▒     │
-% │          ▒▒     │
-% └─────────────────┘
-tablero(ej4x5conObstaculos, T) :-
-	tablero(4, 5, T),
-	ocupar(pos(0, 1), T),
-	ocupar(pos(1, 1), T),
-	ocupar(pos(1, 3), T),
-	ocupar(pos(2, 3), T),
-	ocupar(pos(3, 3), T).
-
-% ┌───────┐
-% │       │
-% │       │
-% └───────┘
-tablero(ej2x2, T) :- tablero(2,2,T).

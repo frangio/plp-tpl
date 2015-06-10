@@ -340,6 +340,11 @@ minimos(ListaDeListas, ListasMasCortas) :-
 % Ejemplos
 
 % :- 
+:- tablero(ej2x2, T), camino3(pos(0, 0), pos(0, 1), T, [pos(0,0), pos(0,1)]).
+:- tablero(ej2x2, T), findall(Camino, camino3(pos(0,0),pos(0,1),T,Camino), Caminos), length(Caminos,1).
+:- tablero(ej5x5, T), camino3(pos(0, 0), pos(2, 3), T, [pos(0, 0), pos(1, 0), pos(2, 0), pos(2, 1), pos(2, 2), pos(2, 3)]).
+:- tablero(ej5x5, T), camino3(pos(0, 0), pos(2, 3), T, [pos(0, 0), pos(0, 1), pos(0, 2), pos(0, 3), pos(1, 3), pos(2, 3)]).
+:- tablero(ej5x5, T), findall(Camino, camino3(pos(0,0),pos(2,3),T,Camino), Caminos), length(Caminos,2).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -359,6 +364,14 @@ minimos(ListaDeListas, ListasMasCortas) :-
 caminoDual(Inicio, Fin, Tablero1, Tablero2, Camino) :-
 	camino2(Inicio, Fin, Tablero1, Camino), % Genera un camino en Tablero1.
 	camino2(Inicio, Fin, Tablero2, Camino). % Chequea que es válido en Tablero2.
+
+% Ejemplos
+%dos tableros distintos
+:-tablero(ej2x2, Tablero1), tablero(ej5x5, Tablero2), caminoDual(pos(0,0), pos(1,0), Tablero1, Tablero2, [pos(0,0), pos(1,0)]).
+%en este caso el camino existe para ej5x5, pero no para ej2x2 porque se excede del tablero
+:-tablero(ej2x2, Tablero1), tablero(ej5x5, Tablero2), not(caminoDual(pos(0,0), pos(1,0), Tablero1, Tablero2, [pos(0,0), pos(0,1), pos(0,2), pos(1,2), pos(1,1),pos(1,0)])).
+%caso trivial donde los dos tableros son el mismo, todos los caminos coinciden
+:-tablero(ej5x5, Tablero1), tablero(ej5x5, Tablero2), findall(Camino, caminoDual(pos(0,0), pos(2,3), Tablero1, Tablero2, Camino), Caminos), length(Caminos, 287).
 
 
 %% Predicados útiles para el desarrollo

@@ -294,6 +294,20 @@ tablero(ej5x5_2, T) :-
 	ocupar(pos(1, 3), T),
 	ocupar(pos(2, 2), T).
 
+% ┌─────────────────┐
+% │       ▒▒        │
+% │       ▒▒        │
+% │                 │
+% │       ▒▒        │
+% │       ▒▒        │
+% └─────────────────┘
+tablero(complicado, T) :-
+	tablero(5, 5, T),
+	ocupar(pos(0, 2), T),
+	ocupar(pos(1, 2), T),
+	ocupar(pos(3, 2), T),
+	ocupar(pos(4, 2), T).
+
 tablero(libre20, T) :-
 	tablero(20, 20, T).
 

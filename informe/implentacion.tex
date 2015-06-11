@@ -1,0 +1,352 @@
+\section{Implementación}
+
+\subsection{Tablero}
+
+
+\begin{verbatim}
+
+%% Ejercicio 1
+
+tablero(Filas, Columnas, Tablero) :-
+        length(Tablero, Filas),
+        maplist(flip(length, Columnas), Tablero).
+
+% flip(+R, ?X, ?Y)
+flip(R, X, Y) :- call(R, Y, X).
+
+% Ejemplos
+:- tablero(1, 1, T), T =@= [[_]].
+:- tablero(3, 4, T), T =@= [[_,_,_,_],[_,_,_,_],[_,_,_,_]].
+
+
+
+%% Ejercicio 2
+% ocupar(+Pos, ?Tablero)
+ocupar(pos(F, C), Tablero) :- posicion(pos(F, C), Tablero, ocupada).
+
+% posicion(+Pos, +Tablero, ?Contenido)
+posicion(pos(F, C), Tablero, Contenido) :-
+        nth0(F, Tablero, Fila),
+        nth0(C, Fila, Contenido).
+
+% Ejemplos
+:- tablero(2, 3, T), ocupar(pos(0, 0), T), posicion(pos(0, 0), T, ocupada).
+
+
+
+%% Ejercicio 3
+% vecino(+Pos, +Tablero, -PosVecino)
+
+% Usamos Generate And Test
+vecino(pos(F, C), Tablero, pos(FV, CV)) :-
+        posibleVecino(pos(F, C), pos(FV, CV)),
+        posicionValida(pos(FV, CV), Tablero).
+
+
+% posibleVecino(+Pos1,-Pos2)
+% Instancia Pos2 en uno de los cuatro posibles vecinos de
+% Pos1, moviéndose ortogonalmente.
+
+posibleVecino(pos(F, C), pos(FV, CV)) :- FV is F - 1, CV is C.
+posibleVecino(pos(F, C), pos(FV, CV)) :- FV is F + 1, CV is C.
+posibleVecino(pos(F, C), pos(FV, CV)) :- FV is F, CV is C - 1.
+posibleVecino(pos(F, C), pos(FV, CV)) :- FV is F, CV is C + 1.
+
+
+% posicionValida(+Pos, +Tablero)
+posicionValida(pos(F, C), Tablero) :-
+        tablero(NumeroF, NumeroC, Tablero),
+        F >= 0, F < NumeroF,
+        C >= 0, C < NumeroC.
+
+
+% mismos_elementos(+L1, +L2)
+% Es verdadero si L1 y L2 tienen los mismos elementos,
+% posiblemente en distinto orden.
+mismos_elementos(L1, L2) :- msort(L1, L1S), msort(L2, L2S), L1S == L2S.
+
+:-  tablero(3, 3, T), findall(Pos, vecino(pos(0, 0), T, Pos), Vecinos),
+    mismos_elementos(Vecinos, [pos(0, 1), pos(1, 0)]).
+:-  tablero(3, 3, T), findall(Pos, vecino(pos(1, 1), T, Pos), Vecinos),
+    mismos_elementos(Vecinos, [pos(0, 1), pos(1, 0), pos(1, 2), pos(2, 1)]).
+
+
+%% Ejercicio 4
+% vecinoLibre(+Pos, +Tablero, -PosVecino)
+vecinoLibre(Pos, Tablero, PosVecino) :-
+        vecino(Pos, Tablero, PosVecino),
+        libre(PosVecino, Tablero).
+
+% libre(+Pos, +Tablero) 
+libre(Pos, Tablero) :-
+        posicion(Pos, Tablero, Celda),
+        var(Celda).
+
+% Ejemplos
+
+:-  tablero(2, 2, T), ocupar(pos(0, 1), T),
+    findall(Pos, vecinoLibre(pos(0, 0), T, Pos), VecinosLibres),
+    VecinosLibres == [pos(1, 0)].
+
+\end{verbatim}
+
+\newpage
+
+\subsection{Definición de Caminos}
+
+\begin{verbatim}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Definicion de caminos %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% Ejercicio 5
+% camino(+Inicio, +Fin, +Tablero, -Camino)
+
+camino(Inicio, Fin, Tablero, Camino) :-
+    libre(Inicio, Tablero),
+    posicionValida(Fin, Tablero),
+        caminoSinVisitadas(Inicio, Fin, Tablero, Camino, [Inicio]).
+
+% caminoSinVisitadas(+Inicio, +Fin, +Tablero, -Camino, +Visitadas)
+caminoSinVisitadas(Pos, Pos, Tablero, [Pos], _) :- !, libre(Pos, Tablero).
+caminoSinVisitadas(Inicio, Fin, Tablero,[Inicio|RestoCamino], Visitadas) :-
+        vecinoLibre(Inicio, Tablero, SiguientePaso),
+        not(member(SiguientePaso, Visitadas)),
+        caminoSinVisitadas(SiguientePaso, Fin, Tablero, RestoCamino, [SiguientePaso|Visitadas]).
+
+%% Ejercicio 6
+% cantidadDeCaminos(+Inicio, +Fin, +Tablero, ?N)
+cantidadDeCaminos(Inicio, Fin, Tablero, N) :- 
+        findall(Camino, camino(Inicio, Fin, Tablero, Camino), Bag),
+        length(Bag, N).
+
+% Ejemplos
+
+:- tablero(ej2x2, T), camino(pos(0, 0), pos(0, 1), T, [pos(0,0), pos(0,1)]).
+
+:- tablero(ej5x5, T), 
+   camino(pos(0, 0),
+          pos(2, 3), T, 
+          [pos(0, 0), pos(1, 0), pos(2, 0), pos(2, 1), pos(2, 2), pos(2, 3)]).
+
+:- tablero(ej5x5, T), 
+   camino(pos(0, 0), 
+          pos(2, 3), T, 
+         [pos(0, 0), pos(0, 1), pos(0, 2), pos(0, 3), pos(1, 3), pos(2, 3)]).
+
+:- tablero(ej5x5, T), cantidadDeCaminos(pos(0, 0), pos(2, 3), T, 287).
+
+%% Ejercicio 7
+% camino2(+Inicio, +Fin, +Tablero, -Camino)
+
+camino2(Inicio, Fin, Tablero, Camino) :-
+    libre(Inicio, Tablero),
+        caminoSinVisitadas2(Inicio, Fin, Tablero, Camino, [Inicio]).
+
+% caminoSinVisitadas2(+Inicio, +Fin, +Tablero, -Camino, +Visitadas)
+caminoSinVisitadas2(Pos, Pos, Tablero, [Pos], _) :- !, libre(Pos, Tablero).
+caminoSinVisitadas2(Inicio, Fin, Tablero,[Inicio|RestoCamino], Visitadas) :-
+        Inicio \= Fin,
+        posicionValida(Inicio, Tablero),
+    posicionValida(Fin, Tablero),
+        bagof(Sig, vecinoLibre(Inicio, Tablero, Sig), Siguientes),
+        memberSegunDistancia(Fin, SiguientePaso, Siguientes),
+        not(member(SiguientePaso, Visitadas)),
+        caminoSinVisitadas2(SiguientePaso, Fin, Tablero, RestoCamino, [SiguientePaso|Visitadas]).
+
+memberSegunDistancia(Fin, Pos, List) :- 
+       predsort(predDistancia(Fin), List, Sorted), !, member(Pos, Sorted).
+
+predDistancia(Fin, Delta, Pos1, Pos2) :-
+        distancia(Fin, Pos1, D1), distancia(Fin, Pos2, D2),
+        (compare(Delta, D1, D2), Delta \= '='); Delta = '<'.
+
+distancia(pos(X1, Y1), pos(X2, Y2), D) :- D is abs(X1 - X2) + abs(Y1 - Y2).
+
+
+cantidadDeCaminos2(Inicio, Fin, Tablero, N) :- 
+        findall(Camino, camino2(Inicio, Fin, Tablero, Camino), Bag),
+        length(Bag, N).
+
+% Ejemplos
+
+:- tablero(ej2x2, T), camino2(pos(0, 0), pos(0, 1), T, [pos(0,0), pos(0,1)]).
+
+:- tablero(ej5x5, T), 
+   camino2(pos(0, 0),
+           pos(2, 3), T, 
+          [pos(0, 0), pos(1, 0), pos(2, 0), pos(2, 1), pos(2, 2), pos(2, 3)]).
+
+:- tablero(ej5x5, T), 
+   camino2(pos(0, 0), 
+           pos(2, 3), T, 
+           [pos(0, 0), pos(0, 1), pos(0, 2), pos(0, 3), pos(1, 3), pos(2, 3)]).
+
+:- tablero(ej5x5, T), 
+   cantidadDeCaminos2(pos(0, 0), pos(2, 3), T, 287).
+
+%% Ejercicio 8
+% camino3(+Inicio, +Fin, +Tablero, -Camino)
+
+:- dynamic camino3lookup/5.
+
+camino3(Inicio, Fin, Tablero, Camino) :- 
+           camino3SinVisitadas(Inicio, Fin, Tablero, Camino, [Inicio]).
+
+%% camino3SinVisitadas(+Inicio, +Fin, +Tablero, -Camino, +Visitadas) 
+camino3SinVisitadas(Inicio, Inicio, Tablero, [Inicio], _) :- !, libre(Inicio, Tablero).
+
+camino3SinVisitadas(Inicio, Fin, Tablero, Camino, Visitadas1) :-
+        camino3lookup(Inicio, Fin, Tablero, Caminos, Visitadas2),
+        mismos_elementos(Visitadas1, Visitadas2),
+        !,
+        member(Camino, Caminos).
+
+% Esto es en esencia el algoritmo de Dijkstra.
+camino3SinVisitadas(Inicio, Fin, Tablero, Camino, Visitadas) :-
+        findall(Cam, (
+          vecinoLibre(Inicio, Tablero, Sig),
+      not(member(Sig, Visitadas)),
+          camino3SinVisitadas(Sig, Fin, Tablero, RestoCam, [Sig | Visitadas]),
+          Cam = [Inicio | RestoCam]
+        ), Caminos),
+        minimos(Caminos, CaminosMinimos),
+        assert(camino3lookup(Inicio, Fin, Tablero, CaminosMinimos, Visitadas)),
+        member(Camino, CaminosMinimos).
+
+% minimos(+ListaDeListas, -ListasMasCortas)
+minimos(ListaDeListas, ListasMasCortas) :-
+        findall(L, (
+          member(L, ListaDeListas),
+          length(L, N),
+          forall(member(Other, ListaDeListas), (length(Other, M), N =< M))
+        ), ListasMasCortas).
+
+:- minimos([[1,2], [10], [1,2,3], [5]], L), mismos_elementos(L, [[10], [5]]).
+
+% Ejemplos
+
+:- tablero(ej2x2, T), camino3(pos(0, 0), pos(0, 1), T, [pos(0,0), pos(0,1)]).
+
+:- tablero(ej2x2, T), 
+   findall(Camino, camino3(pos(0,0),pos(0,1),T,Camino), Caminos), length(Caminos,1).
+
+:- tablero(ej5x5, T), 
+   camino3(pos(0, 0), 
+           pos(2, 3), T, 
+           [pos(0, 0), pos(1, 0), pos(2, 0), pos(2, 1), pos(2, 2), pos(2, 3)]).
+
+:- tablero(ej5x5, T), 
+   camino3(pos(0, 0), 
+           pos(2, 3), T, 
+           [pos(0, 0), pos(0, 1), pos(0, 2), pos(0, 3), pos(1, 3), pos(2, 3)]).
+
+:- tablero(ej5x5, T), 
+         findall(Camino, camino3(pos(0,0),pos(2,3),T,Camino), Caminos), length(Caminos,2).
+
+
+\end{verbatim}
+
+
+\subsection{Tableros Simultáneos}
+
+\begin{verbatim}
+
+%% Ejercicio 9
+% caminoDual(+Inicio, +Fin, +Tablero1, +Tablero2, -Camino)
+
+% Usa generate and test.
+caminoDual(Inicio, Fin, Tablero1, Tablero2, Camino) :-
+        camino2(Inicio, Fin, Tablero1, Camino), % Genera un camino en Tablero1.
+        camino2(Inicio, Fin, Tablero2, Camino). % Chequea que es válido en Tablero2.
+
+% Ejemplos
+% Dos tableros distintos
+:- tablero(ej2x2, Tablero1), tablero(ej5x5, Tablero2), 
+   caminoDual(pos(0,0), pos(1,0), Tablero1, Tablero2, [pos(0,0), pos(1,0)]).
+
+% En este caso el camino existe para ej5x5, pero no para ej2x2 porque se excede del tablero
+:- tablero(ej2x2, Tablero1), tablero(ej5x5, Tablero2), 
+   not(
+      caminoDual(pos(0,0), 
+                 pos(1,0), Tablero1, Tablero2, 
+                [pos(0,0), pos(0,1), pos(0,2), pos(1,2), pos(1,1),pos(1,0)])).
+
+% Caso trivial donde los dos tableros son el mismo, todos los caminos coinciden
+:- tablero(ej5x5, Tablero1), tablero(ej5x5, Tablero2), 
+   findall(Camino, caminoDual(pos(0,0), pos(2,3), Tablero1, Tablero2, Camino), Caminos), 
+   length(Caminos, 287).
+
+\end{verbatim}
+
+\newpage
+\subsection{Tableros de ejemplo}
+
+\begin{verbatim}
+
+% tablero(+Nombre, -T).
+
+tablero(ej5x5, T) :-
+        tablero(5, 5, T),
+        ocupar(pos(1, 1), T),
+        ocupar(pos(1, 2), T).
+
+tablero(ej5x5_2, T) :-
+        tablero(5, 5, T),
+        ocupar(pos(1, 3), T),
+        ocupar(pos(2, 2), T).
+
+
+tablero(complicado1, T) :-
+        tablero(5, 5, T),
+        ocupar(pos(1, 1), T),
+        ocupar(pos(2, 1), T),
+        ocupar(pos(3, 1), T),
+        ocupar(pos(0, 3), T),
+        ocupar(pos(1, 3), T),
+        ocupar(pos(3, 3), T),
+        ocupar(pos(4, 3), T).
+
+
+tablero(complicado2, T) :-
+        tablero(4, 8, T),
+        ocupar(pos(0, 3), T),
+        ocupar(pos(1, 0), T),
+        ocupar(pos(1, 2), T),
+        ocupar(pos(1, 3), T),
+        ocupar(pos(0, 5), T),
+        ocupar(pos(1, 5), T),
+        ocupar(pos(1, 6), T).
+
+tablero(libre20, T) :-
+        tablero(20, 20, T).
+
+tablero(ej3x3diagonal, T) :-
+        tablero(3, 3, T),
+        ocupar(pos(0, 0), T),
+        ocupar(pos(1, 1), T),
+        ocupar(pos(2, 2), T).
+
+
+tablero(ocupado2x3, T) :-
+        tablero(2, 3, T),
+        ocupar(pos(0, 0), T),
+        ocupar(pos(0, 1), T),
+        ocupar(pos(0, 2), T),
+        ocupar(pos(1, 0), T),
+        ocupar(pos(1, 1), T),
+        ocupar(pos(1, 2), T).
+
+tablero(ej4x5conObstaculos, T) :-
+        tablero(4, 5, T),
+        ocupar(pos(0, 1), T),
+        ocupar(pos(1, 1), T),
+        ocupar(pos(1, 3), T),
+        ocupar(pos(2, 3), T),
+        ocupar(pos(3, 3), T).
+
+tablero(ej2x2, T) :- tablero(2,2,T).
+
+\end{verbatim}
+
